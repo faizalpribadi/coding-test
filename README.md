@@ -7,9 +7,10 @@ Your task is to build a simple, full-stack application featuring:
 3. **Dummy JSON Data** (provided) with sales-related information.
 4. **Fiber** as additional backend with golang 
 
-## Generate Information 
-The architecture in Python uses modularity,
-while in Go it uses a Domain-Driven Design (DDD) approach and command based application.
+## General Information 
+1. The architecture in Python uses modularity,
+2. The architecture in Golang use Domain-Driven Design (DDD) approach and comman based application
+
 
 ## How to setup (backend)
 ### Python
