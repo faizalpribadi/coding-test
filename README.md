@@ -33,3 +33,4 @@ Your task is to build a simple, full-stack application featuring:
 
 ## Notes
 1. i haven't many experience with Frontend especially in the implementing the design like CSS 
+2. There is some key point need to improve in the backend like caching , dependency injection and interaction with database , its nice to have but not mentioned in requirements
