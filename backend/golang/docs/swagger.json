@@ -1,0 +1,211 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample API server.",
+        "title": "Coding Test API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/ai": {
+            "post": {
+                "parameters": [
+                    {
+                        "description": "AI Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.AIRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.AIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/sales/data": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.DummyData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/sales/sales-reps/filter": {
+            "get": {
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Region to filter by",
+                        "name": "region",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Deal status to filter by",
+                        "name": "deal_status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.SalesRep"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.AIRequest": {
+            "type": "object",
+            "properties": {
+                "question": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AIResponse": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Client": {
+            "type": "object",
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "industry": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Deal": {
+            "type": "object",
+            "properties": {
+                "client": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.DummyData": {
+            "type": "object",
+            "properties": {
+                "salesReps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SalesRep"
+                    }
+                }
+            }
+        },
+        "domain.SalesRep": {
+            "type": "object",
+            "properties": {
+                "clients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Client"
+                    }
+                },
+                "deals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Deal"
+                    }
+                },
+                "filtered_deals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Deal"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "fiber.Map": {
+            "type": "object",
+            "additionalProperties": true
+        }
+    }
+}

@@ -1,0 +1,9 @@
+app:
+  port: 8000
+  name: app
+
+ai_provider:
+  gemini:
+    api_key: your_api_key
+    model: gemini-2.0-flash
+  openai:

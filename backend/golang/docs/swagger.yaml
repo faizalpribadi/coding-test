@@ -1,0 +1,136 @@
+basePath: /api
+definitions:
+  domain.AIRequest:
+    properties:
+      question:
+        type: string
+    type: object
+  domain.AIResponse:
+    properties:
+      answer:
+        type: string
+    type: object
+  domain.Client:
+    properties:
+      contact:
+        type: string
+      industry:
+        type: string
+      name:
+        type: string
+    type: object
+  domain.Deal:
+    properties:
+      client:
+        type: string
+      status:
+        type: string
+      value:
+        type: integer
+    type: object
+  domain.DummyData:
+    properties:
+      salesReps:
+        items:
+          $ref: '#/definitions/domain.SalesRep'
+        type: array
+    type: object
+  domain.SalesRep:
+    properties:
+      clients:
+        items:
+          $ref: '#/definitions/domain.Client'
+        type: array
+      deals:
+        items:
+          $ref: '#/definitions/domain.Deal'
+        type: array
+      filtered_deals:
+        items:
+          $ref: '#/definitions/domain.Deal'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      region:
+        type: string
+      role:
+        type: string
+      skills:
+        items:
+          type: string
+        type: array
+    type: object
+  fiber.Map:
+    additionalProperties: true
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+  description: This is a sample API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Coding Test API
+  version: 1.0.0
+paths:
+  /ai:
+    post:
+      parameters:
+      - description: AI Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AIRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AIResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+  /sales/data:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DummyData'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+  /sales/sales-reps/filter:
+    get:
+      parameters:
+      - description: Region to filter by
+        in: query
+        name: region
+        type: string
+      - description: Deal status to filter by
+        in: query
+        name: deal_status
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.SalesRep'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+swagger: "2.0"

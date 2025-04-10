@@ -1,17 +1,37 @@
 import { useState, useEffect } from "react";
+import Head from 'next/head';
+import Navigation from '../components/Navigation';
+import Dashboard from '../components/Dashboard';
+import RepDetails from '../components/RepDetails';
 
 export default function Home() {
-  const [users, setUsers] = useState([]);
+  const [salesReps, setSalesReps] = useState([]);
+  const [filteredReps, setFilteredReps] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [stats, setStats] = useState({
+    totalValue: 0,
+    closedWon: 0,
+    inProgress: 0,
+    closedLost: 0
+  });
+  const [regionFilter, setRegionFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [regions, setRegions] = useState([]);
 
+
+  // Fetch sales data
   useEffect(() => {
-    fetch("http://localhost:8000/api/data")
+    fetch("http://localhost:8000/api/sales-reps")
       .then((res) => res.json())
       .then((data) => {
-        setUsers(data.users || []);
+        setSalesReps(data || []);
+        setFilteredReps(data || []);
         setLoading(false);
+
+        const uniqueRegions = [...new Set(data.map(rep => rep.region))];
+        setRegions(uniqueRegions);
+
+        calculateStats(data);
       })
       .catch((err) => {
         console.error("Failed to fetch data:", err);
@@ -19,56 +39,93 @@ export default function Home() {
       });
   }, []);
 
-  const handleAskQuestion = async () => {
-    try {
-      const response = await fetch("http://localhost:8000/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+  const calculateStats = (reps) => {
+    let totalValue = 0;
+    let closedWon = 0;
+    let inProgress = 0;
+    let closedLost = 0;
+
+    reps.forEach(rep => {
+      rep.deals.forEach(deal => {
+        totalValue += deal.value;
+
+        if (deal.status === "Closed Won") {
+          closedWon += deal.value;
+        } else if (deal.status === "In Progress") {
+          inProgress += deal.value;
+        } else if (deal.status === "Closed Lost") {
+          closedLost += deal.value;
+        }
       });
-      const data = await response.json();
-      setAnswer(data.answer);
-    } catch (error) {
-      console.error("Error in AI request:", error);
-    }
+    });
+
+    setStats({
+      totalValue,
+      closedWon,
+      inProgress,
+      closedLost
+    });
   };
 
+  const applyFilters = () => {
+    let filtered = [...salesReps];
+
+    if (regionFilter) {
+      filtered = filtered.filter(rep => rep.region === regionFilter);
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(rep => {
+        return rep.deals.some(deal => deal.status === statusFilter);
+      });
+    }
+
+    setFilteredReps(filtered);
+    calculateStats(filtered);
+  };
+
+  const resetFilters = () => {
+    setRegionFilter('');
+    setStatusFilter('');
+    setFilteredReps(salesReps);
+    calculateStats(salesReps);
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+
+
+
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Next.js + FastAPI Sample</h1>
+    <div>
+      <Head>
+        <title>Sales Dashboard</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+      </Head>
 
-      <section style={{ marginBottom: "2rem" }}>
-        <h2>Dummy Data</h2>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <ul>
-            {users.map((user) => (
-              <li key={user.id}>
-                {user.name} - {user.role}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <Navigation />
 
-      <section>
-        <h2>Ask a Question (AI Endpoint)</h2>
-        <div>
-          <input
-            type="text"
-            placeholder="Enter your question..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-          <button onClick={handleAskQuestion}>Ask</button>
-        </div>
-        {answer && (
-          <div style={{ marginTop: "1rem" }}>
-            <strong>AI Response:</strong> {answer}
-          </div>
-        )}
-      </section>
+      <main className="p-4">
+        <Dashboard
+          stats={stats}
+          formatCurrency={formatCurrency}
+          regionFilter={regionFilter}
+          setRegionFilter={setRegionFilter}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          regions={regions}
+          applyFilters={applyFilters}
+          resetFilters={resetFilters}
+          loading={loading}
+          filteredReps={filteredReps}
+          salesReps={salesReps}
+        />
+      </main>
     </div>
   );
 }
